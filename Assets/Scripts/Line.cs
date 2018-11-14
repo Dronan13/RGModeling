@@ -12,7 +12,7 @@ public struct Line {
 	float gradientPerpendicular;
 
 	bool approachSide;
-
+    
 	public Line(Vector2 pointOnLine, Vector2 pointPerpendicularToLine) {
 		float dx = pointOnLine.x - pointPerpendicularToLine.x;
 		float dy = pointOnLine.y - pointPerpendicularToLine.y;
