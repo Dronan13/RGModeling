@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 class TVSRay : MonoBehaviour
@@ -17,7 +18,7 @@ class TVSRay : MonoBehaviour
 
     
     string scan;
-
+    string frames = "";
     public float obstacleProximity { get; set; }
 
     void Awake()
@@ -36,6 +37,20 @@ class TVSRay : MonoBehaviour
                                             + config.mode
                                             + "\\R" + GetComponent<Unit>().id.ToString()
                                             + "\\frames\\");
+        //frames = "{"+ System.Environment.NewLine+"\t\"frames\":["+ System.Environment.NewLine;      
+        frames = "["+ System.Environment.NewLine;                                
+    }
+
+    void OnApplicationQuit()
+    {
+        frames = frames.Remove(frames.Length - 3) + System.Environment.NewLine;
+        frames += "\t]"+ System.Environment.NewLine; 
+
+        System.IO.File.AppendAllText(config.path
+                                            + config.mode
+                                            + "\\R" + GetComponent<Unit>().id.ToString()
+                                            + "\\frames\\"
+                                            + "\\FE" + config.experiment.ToString() + ".txt", frames);
     }
     void LateUpdate()
     {
@@ -52,14 +67,10 @@ class TVSRay : MonoBehaviour
         if (Physics.Raycast(transform.position, dir, out hit, config.viewRadius, obstacleMask))
         {
             Debug.DrawLine(transform.position, hit.point, Color.blue);
-
             Vector3 wp = new Vector3(hit.point.x, hit.point.y, hit.point.z);
-
             commonGrid.GetComponent<Grid>().
                                         UpdateGrid(wp, GetComponent<Unit>().id, false);
-
             obstacleProximity = Vector3.Distance(transform.position, wp);
-
             return new ViewCastInfo(true, hit.point, hit.distance, globalAngle);
         }
         else
@@ -78,11 +89,8 @@ class TVSRay : MonoBehaviour
         if (Physics.Raycast(transform.position, dir, out hit, config.viewRadius, obstacleMask))
         {
             Debug.DrawLine(transform.position, hit.point, Color.red);
-
             Vector3 wp = new Vector3(hit.point.x, hit.point.y, hit.point.z);          
-
             obstacleProximity = Vector3.Distance(transform.position, wp);
-
             return new ViewCastInfo(true, hit.point, hit.distance, globalAngle);
         }
         else
@@ -139,7 +147,6 @@ class TVSRay : MonoBehaviour
             ViewCastInfo newViewCast = ViewCast(angle);
             viewPoints.Add(newViewCast.point);
         }
-      
     }
     
     void DrawFieldOfViewBeam()
@@ -150,8 +157,24 @@ class TVSRay : MonoBehaviour
         float stepAngleSize = config.viewAngle / stepCount;
         float stepAngleSize_ver = config.vertAngle / stepCount_ver;
         List<Vector3> viewPoints = new List<Vector3>();
-        string proximities = "";
+        //string proximities = "";
         string frame = "";
+                
+        frame +="\t{" + System.Environment.NewLine;
+        frame += "\t\"time\":"+ "\"" + DateTime.Now.ToString("hh.mm.ss.ffffff").ToString()+ "\"," + System.Environment.NewLine;
+        frame += "\t\"position\":{" 
+                    + "\"x\":\"" + transform.position.x.ToString("G4")+"\","
+                    + "\"y\":\"" + transform.position.y.ToString("G4") + "\","
+                    + "\"z\":\"" + transform.position.z.ToString("G4") + "\""
+                    + "}," 
+                    + System.Environment.NewLine;                   
+        frame += "\t\"roation\":{" 
+                    + "\"x\":\"" + transform.rotation.x.ToString("G4")+"\","
+                    + "\"y\":\"" + transform.rotation.y.ToString("G4") + "\","
+                    + "\"z\":\"" + transform.rotation.z.ToString("G4") + "\""
+                    + "}," 
+                    + System.Environment.NewLine;                    
+        frame +="\t\"points\":["+ System.Environment.NewLine;
 
         for (int i = 0; i <= stepCount; i++)
         {          
@@ -161,30 +184,36 @@ class TVSRay : MonoBehaviour
                 angle_ver = -transform.eulerAngles.x + vertDispAngle - config.vertAngle / 2 + stepAngleSize_ver * j;               
                 ViewCastInfo newViewCast = ViewCastBeam(angle);
                 viewPoints.Add(newViewCast.point);
-                proximities += obstacleProximity.ToString() + ",";
-
-                frame += newViewCast.point.x.ToString("G4")+","
-                        + newViewCast.point.y.ToString("G4") + ","
-                        + newViewCast.point.z.ToString("G4")
-                        + System.Environment.NewLine;
-            }
-            
+                
+                frame += "\t\t{" 
+                    + "\"x\":\"" + newViewCast.point.x.ToString("G4") + "\","
+                    + "\"y\":\"" + newViewCast.point.y.ToString("G4") + "\","
+                    + "\"z\":\"" + newViewCast.point.z.ToString("G4") + "\","
+                    + "\"d\":\"" + obstacleProximity.ToString("G4") + "\""
+                    + "}," + System.Environment.NewLine;
+            }       
         }
+        frame = frame.Remove(frame.Length - 3) + System.Environment.NewLine;
+        frame += "\t\t]" + System.Environment.NewLine;
+        frame += "\t}," + System.Environment.NewLine;
 
+        frames += frame;
+
+        /* 
         proximities = proximities.Remove(proximities.Length - 1) + System.Environment.NewLine;
-
+        Store proximities in seperate file
         System.IO.File.AppendAllText(config.path
                                             + config.mode
                                             + "\\R" + GetComponent<Unit>().id.ToString() 
                                             + "\\proximities\\" 
                                             + "\\PE" + config.experiment.ToString() + ".txt", proximities);
-
+        
         System.IO.File.AppendAllText(config.path
                                             + config.mode
                                             + "\\R" + GetComponent<Unit>().id.ToString()
                                             + "\\frames\\"
                                             + "\\FE" + config.experiment.ToString() + ".txt", frame);
-
+        */
     }
 
     public struct EdgeInfo
