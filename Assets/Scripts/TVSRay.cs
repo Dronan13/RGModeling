@@ -38,19 +38,19 @@ class TVSRay : MonoBehaviour
                                             + "\\R" + GetComponent<Unit>().id.ToString()
                                             + "\\frames\\");
         //frames = "{"+ System.Environment.NewLine+"\t\"frames\":["+ System.Environment.NewLine;      
-        frames = "["+ System.Environment.NewLine;                                
+        //frames = "[";//+ System.Environment.NewLine;                                
     }
 
     void OnApplicationQuit()
     {
-        frames = frames.Remove(frames.Length - 3) + System.Environment.NewLine;
-        frames += "\t]"+ System.Environment.NewLine; 
+        //frames = frames.Remove(frames.Length - 3) + System.Environment.NewLine;
+        //frames += "\t]"+ System.Environment.NewLine; 
 
         System.IO.File.AppendAllText(config.path
                                             + config.mode
                                             + "\\R" + GetComponent<Unit>().id.ToString()
                                             + "\\frames\\"
-                                            + "\\FE" + config.experiment.ToString() + ".txt", frames);
+                                            + "\\FE" + config.experiment.ToString() + ".json", frames);
     }
     void LateUpdate()
     {
@@ -160,21 +160,21 @@ class TVSRay : MonoBehaviour
         //string proximities = "";
         string frame = "";
                 
-        frame +="\t{" + System.Environment.NewLine;
-        frame += "\t\"time\":"+ "\"" + DateTime.Now.ToString("hh.mm.ss.ffffff").ToString()+ "\"," + System.Environment.NewLine;
-        frame += "\t\"position\":{" 
-                    + "\"x\":\"" + transform.position.x.ToString("G4")+"\","
-                    + "\"y\":\"" + transform.position.y.ToString("G4") + "\","
-                    + "\"z\":\"" + transform.position.z.ToString("G4") + "\""
-                    + "}," 
-                    + System.Environment.NewLine;                   
-        frame += "\t\"roation\":{" 
-                    + "\"x\":\"" + transform.rotation.x.ToString("G4")+"\","
-                    + "\"y\":\"" + transform.rotation.y.ToString("G4") + "\","
-                    + "\"z\":\"" + transform.rotation.z.ToString("G4") + "\""
-                    + "}," 
-                    + System.Environment.NewLine;                    
-        frame +="\t\"points\":["+ System.Environment.NewLine;
+        frame +="\t{" ;//+ System.Environment.NewLine;
+        frame += "\t\"time\":"+ "\"" + DateTime.Now.ToString("hh.mm.ss.ffffff").ToString()+ "\",";// + System.Environment.NewLine;
+        frame += "\t\"position\":[" 
+                    + transform.position.x.ToString("G4") + ","
+                    + transform.position.y.ToString("G4") + ","
+                    + transform.position.z.ToString("G4")
+                    + "],";
+                    //+ System.Environment.NewLine;                   
+        frame += "\t\"roation\":[" 
+                    + transform.rotation.x.ToString("G4")+","
+                    + transform.rotation.y.ToString("G4") + ","
+                    + transform.rotation.z.ToString("G4")
+                    + "]," ;
+                    //+ System.Environment.NewLine;                    
+        frame +="\t\"points\":[";//+ System.Environment.NewLine;
 
         for (int i = 0; i <= stepCount; i++)
         {          
@@ -184,21 +184,22 @@ class TVSRay : MonoBehaviour
                 angle_ver = -transform.eulerAngles.x + vertDispAngle - config.vertAngle / 2 + stepAngleSize_ver * j;               
                 ViewCastInfo newViewCast = ViewCastBeam(angle);
                 viewPoints.Add(newViewCast.point);
+                if(obstacleProximity < (config.viewRadius-0.1)){
+                   frame += "\t\t[" 
+                    + newViewCast.point.x.ToString("G4") + ","
+                    + newViewCast.point.y.ToString("G4") + ","
+                    + newViewCast.point.z.ToString("G4") + ","
+                    + obstacleProximity.ToString("G4")
+                    + "],";// + System.Environment.NewLine; 
+                }
                 
-                frame += "\t\t{" 
-                    + "\"x\":\"" + newViewCast.point.x.ToString("G4") + "\","
-                    + "\"y\":\"" + newViewCast.point.y.ToString("G4") + "\","
-                    + "\"z\":\"" + newViewCast.point.z.ToString("G4") + "\","
-                    + "\"d\":\"" + obstacleProximity.ToString("G4") + "\""
-                    + "}," + System.Environment.NewLine;
             }       
         }
-        frame = frame.Remove(frame.Length - 3) + System.Environment.NewLine;
-        frame += "\t\t]" + System.Environment.NewLine;
-        frame += "\t}," + System.Environment.NewLine;
+        //frame = frame.Remove(frame.Length - 3) + System.Environment.NewLine;
+        frame += "\t\t]";// + System.Environment.NewLine;
+        frame += "\t}" + System.Environment.NewLine;
 
         frames += frame;
-
         /* 
         proximities = proximities.Remove(proximities.Length - 1) + System.Environment.NewLine;
         Store proximities in seperate file

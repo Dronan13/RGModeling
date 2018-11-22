@@ -50,7 +50,8 @@ class Monitor : MonoBehaviour
             if (robot.GetComponent<Unit>().reached) reload++;
         }
 
-        if (reload == robots.Length && config.experiment <= config.experiments)
+        //if (reload == robots.Length && config.experiment <= config.experiments)
+        if (reload == robots.Length)
         {           
             string array = "";
             string array_1 = "";
@@ -81,13 +82,15 @@ class Monitor : MonoBehaviour
             System.IO.File.WriteAllText(config.path + config.mode + "\\R3" + "\\maps\\" + filename, array_3);
 
 
-            config.experiment++;                    
-            SceneManager.LoadScene(config.scene);
+            //config.experiment++;                    
+            //SceneManager.LoadScene(config.scene);
         }
+        /* 
         if (config.experiment>config.experiments)
         {
             SceneManager.LoadScene("Menu");
         } 
+        */
     }
 
     void MainTargetReachedForOne()
@@ -127,9 +130,7 @@ class Monitor : MonoBehaviour
                     {
                         SceneManager.LoadScene("Menu");
                     }
-                }
-
-                
+                }                
             }   
         }
         

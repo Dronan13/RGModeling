@@ -85,7 +85,7 @@ public class Unit : MonoBehaviour {
     }
     public void RequestPath()
     {
-        if (Vector3.Distance(transform.position, target.position) < 5 && targetID<(targets.Length-1))
+        if (Vector3.Distance(transform.position, target.position) < 5 && targetID < (targets.Length - 1))
         {
             targetID++;
             target = targets[targetID];
@@ -96,7 +96,8 @@ public class Unit : MonoBehaviour {
             reached = true;
         }
 
-        GameObject.Find("Grid").GetComponent<PathRequestManager>().RequestPath(new PathRequest(transform.position, target.position, OnPathFound));
+        GameObject.Find("Grid").GetComponent<PathRequestManager>()
+            .RequestPath(new PathRequest(transform.position, target.position, OnPathFound));
     }
 
 	IEnumerator FollowPath() {

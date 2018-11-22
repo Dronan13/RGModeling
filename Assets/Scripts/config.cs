@@ -5,7 +5,7 @@ static class config
     public static string path = "E:\\experiments\\mode_";
     public static string scene = "Scene_6";
     public static string mode = "Group";  
-    public static int experiments = 5;
+    public static int experiments = 1;
 
     public static int experiment = 1;
     public static int activeRobotID = 0;
